@@ -3,14 +3,14 @@
 //
 // Usage examples:
 //   # Plan only, keep current orientation, move tool0 +2 cm along base_link X:
-//   ros2 run elite_robots_driver example_moveit_pose_goal --ros-args -p offset:="[0.02,0.0,0.0]"
+//   ros2 run elite_robots_moveit_config example_moveit_pose_goal --ros-args -p offset:="[0.02,0.0,0.0]"
 //
 //   # Execute the plan:
-//   ros2 run elite_robots_driver example_moveit_pose_goal --ros-args -p execute:=true -p offset:="[0.02,0.0,0.0]"
+//   ros2 run elite_robots_moveit_config example_moveit_pose_goal --ros-args -p execute:=true -p offset:="[0.02,0.0,0.0]"
 //
 //   # Absolute pose target: x y z rx ry rz in reference_frame.
 //   # rx ry rz is RPY [rad], matching the teach pendant when its pose format is RPY [rad].
-//   ros2 run elite_robots_driver example_moveit_pose_goal --ros-args
+//   ros2 run elite_robots_moveit_config example_moveit_pose_goal --ros-args
 //     -p execute:=true -p target_pose:="[0.4,0.0,0.35,0.0,3.14159,0.0]"
 
 #include <algorithm>

@@ -14,54 +14,14 @@ ros2 launch elite_robots_driver elite_control.launch.py \
   headless_mode:=true
 ```
 
-如果要运行 MoveIt 位姿示例，还需要启动 MoveIt：
-
-```bash
-ros2 launch elite_robots_moveit_config elite_moveit.launch.py \
-  cs_type:=cs63a \
-  launch_rviz:=true
-```
-
 发送运动前建议确认控制器状态：
 
 ```bash
 ros2 control list_controllers
 ```
 
-## MoveIt 笛卡尔位姿示例
-
-功能：通过 MoveIt 规划到指定笛卡尔位姿，并可选择是否执行规划出的轨迹。
-
-位姿格式：
-
-```text
-x y z rx ry rz
-```
-
-`x y z` 单位是米，`rx ry rz` 是 RPY 欧拉角，单位是弧度。
-
-C++：
-
-```bash
-ros2 run elite_robots_driver example_moveit_pose_goal --ros-args \
-  -p target_pose:="[0.4,0.0,0.523,0.3,-1.0,0.5]" \
-  -p execute:=true
-```
-
-Python：
-
-```bash
-ros2 run elite_robots_driver example_moveit_pose_goal_py \
-  --target-pose "[0.4,0.0,0.523,0.3,-1.0,0.5]" \
-  --execute
-```
-
-只规划不控制机器人运动：
-
-```bash
-ros2 run elite_robots_driver example_moveit_pose_goal --ros-args \
-  -p target_pose:="[0.4,0.0,0.523,0.3,-1.0,0.5]"
-```
+笛卡尔 MoveIt 位姿示例已经迁移到 `elite_robots_moveit_config` 包。
+中文说明见 [`elite_robots_moveit_config/example/doc/Usage_CN.md`](../../../elite_robots_moveit_config/example/doc/Usage_CN.md)。
 
 ## 安全关节运动示例
 

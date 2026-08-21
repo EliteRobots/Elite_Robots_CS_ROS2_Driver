@@ -15,7 +15,6 @@
 #include "elite_robots_msgs/srv/get_robot_mode.hpp"
 #include "elite_robots_msgs/srv/get_safety_mode.hpp"
 #include "elite_robots_dashboard_msgs/srv/custom_request.hpp"
-#include "elite_robots_dashboard_msgs/srv/get_remote_control.hpp"
 #include "elite_robots_dashboard_msgs/srv/get_remote_control_mode.hpp"
 #include "elite_robots_dashboard_msgs/srv/set_remote_control.hpp"
 
@@ -48,7 +47,6 @@ class DashboardClient : public rclcpp::Node {
     rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr safety_system_restart_service_;
     rclcpp::Service<elite_robots_dashboard_msgs::srv::CustomRequest>::SharedPtr custom_request_service_;
     rclcpp::Service<elite_robots_dashboard_msgs::srv::SetRemoteControl>::SharedPtr set_remote_control_service_;
-    rclcpp::Service<elite_robots_dashboard_msgs::srv::GetRemoteControl>::SharedPtr get_remote_control_service_;
     rclcpp::Service<elite_robots_dashboard_msgs::srv::GetRemoteControlMode>::SharedPtr get_remote_control_mode_service_;
 
     ELITE::DashboardClient client_;

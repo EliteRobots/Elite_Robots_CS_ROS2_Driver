@@ -14,54 +14,14 @@ ros2 launch elite_robots_driver elite_control.launch.py \
   headless_mode:=true
 ```
 
-For MoveIt pose examples, also start MoveIt:
-
-```bash
-ros2 launch elite_robots_moveit_config elite_moveit.launch.py \
-  cs_type:=cs63a \
-  launch_rviz:=true
-```
-
 Check the active controller before sending motion:
 
 ```bash
 ros2 control list_controllers
 ```
 
-## MoveIt Cartesian Pose Goal
-
-Function: plans to a Cartesian pose with MoveIt and optionally executes the planned trajectory.
-
-Pose format:
-
-```text
-x y z rx ry rz
-```
-
-`x y z` are in meters. `rx ry rz` are RPY angles in radians.
-
-C++:
-
-```bash
-ros2 run elite_robots_driver example_moveit_pose_goal --ros-args \
-  -p target_pose:="[0.4,0.0,0.523,0.3,-1.0,0.5]" \
-  -p execute:=true
-```
-
-Python:
-
-```bash
-ros2 run elite_robots_driver example_moveit_pose_goal_py \
-  --target-pose "[0.4,0.0,0.523,0.3,-1.0,0.5]" \
-  --execute
-```
-
-Use planning only without moving the robot:
-
-```bash
-ros2 run elite_robots_driver example_moveit_pose_goal --ros-args \
-  -p target_pose:="[0.4,0.0,0.523,0.3,-1.0,0.5]"
-```
+The Cartesian MoveIt pose-goal example was moved to the `elite_robots_moveit_config` package.
+See [`elite_robots_moveit_config/example/doc/Usage.md`](../../../elite_robots_moveit_config/example/doc/Usage.md).
 
 ## Safe Joint Move
 

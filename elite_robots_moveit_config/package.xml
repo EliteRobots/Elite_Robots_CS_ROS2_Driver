@@ -16,14 +16,19 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
+  <depend>geometry_msgs</depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <depend>rclcpp</depend>
+  <depend>moveit_ros_planning_interface</depend>
   <exec_depend>moveit_kinematics</exec_depend>
   <exec_depend>moveit_planners_ompl</exec_depend>
   <exec_depend>moveit_ros_move_group</exec_depend>
   <exec_depend>moveit_ros_visualization</exec_depend>
   <exec_depend>moveit_servo</exec_depend>
   <exec_depend>moveit_simple_controller_manager</exec_depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>elite_robots_description</exec_depend>
   <exec_depend>urdf</exec_depend>

@@ -81,21 +81,6 @@ DashboardClient::DashboardClient(const rclcpp::NodeOptions& options) : Node("das
             }
         });
 
-    get_remote_control_service_ = this->create_service<elite_robots_dashboard_msgs::srv::GetRemoteControl>(
-        "~/get_remote_control",
-        [&](const elite_robots_dashboard_msgs::srv::GetRemoteControl::Request::SharedPtr req,
-            elite_robots_dashboard_msgs::srv::GetRemoteControl::Response::SharedPtr resp) {
-            (void)req;
-            try {
-                resp->enabled = client_.remoteControl();
-                resp->success = true;
-            } catch (const ELITE::EliteException& e) {
-                resp->enabled = false;
-                resp->success = false;
-                resp->message = e.what();
-            }
-        });
-
     get_remote_control_mode_service_ = this->create_service<elite_robots_dashboard_msgs::srv::GetRemoteControlMode>(
         "~/get_remote_control_mode",
         [&](const elite_robots_dashboard_msgs::srv::GetRemoteControlMode::Request::SharedPtr req,

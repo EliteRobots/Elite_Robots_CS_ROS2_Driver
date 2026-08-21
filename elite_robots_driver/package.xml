@@ -31,7 +31,6 @@
   <depend>sensor_msgs</depend>
   <depend>control_msgs</depend>
   <depend>trajectory_msgs</depend>
-  <depend>moveit_ros_planning_interface</depend>
   <depend>moveit_msgs</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>

@@ -25,7 +25,6 @@ find_package(control_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(moveit_ros_planning_interface REQUIRED)
 
 set(
   THIS_PACKAGE_DEPENDENCIES
@@ -245,11 +244,6 @@ install(
   DESTINATION lib/${PROJECT_NAME}
   RENAME example_safe_joint_move_py
 )
-install(
-  PROGRAMS example/python/example_moveit_pose_goal.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME example_moveit_pose_goal_py
-)
 add_executable(
   example_safe_joint_move
   example/cpp/example_safe_joint_move.cpp
@@ -260,21 +254,6 @@ ament_target_dependencies(
 )
 install(
   TARGETS example_safe_joint_move
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-add_executable(
-  example_moveit_pose_goal
-  example/cpp/example_moveit_pose_goal.cpp
-)
-ament_target_dependencies(
-  example_moveit_pose_goal
-  rclcpp
-  geometry_msgs
-  moveit_ros_planning_interface
-)
-install(
-  TARGETS example_moveit_pose_goal
   DESTINATION lib/${PROJECT_NAME}
 )
 

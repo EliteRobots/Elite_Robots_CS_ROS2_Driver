@@ -29,7 +29,6 @@ rosidl_generate_interfaces(
   "srv/IsSaved.srv"
   "srv/CustomRequest.srv"
   "srv/SetRemoteControl.srv"
-  "srv/GetRemoteControl.srv"
   "srv/GetRemoteControlMode.srv"
 )
 

@@ -4,13 +4,13 @@
 #
 # Usage examples:
 #   # Plan only, keep current orientation, move tool0 +2 cm along base_link X:
-#   ros2 run elite_robots_driver example_moveit_pose_goal_py --offset "[0.02,0.0,0.0]"
+#   ros2 run elite_robots_moveit_config example_moveit_pose_goal_py --offset "[0.02,0.0,0.0]"
 #
 #   # Execute the offset plan:
-#   ros2 run elite_robots_driver example_moveit_pose_goal_py --offset "[0.02,0.0,0.0]" --execute
+#   ros2 run elite_robots_moveit_config example_moveit_pose_goal_py --offset "[0.02,0.0,0.0]" --execute
 #
 #   # Absolute pose target:
-#   ros2 run elite_robots_driver example_moveit_pose_goal_py --target-pose "[0.4,0.0,0.523,0.3,-1.0,0.5]" --execute
+#   ros2 run elite_robots_moveit_config example_moveit_pose_goal_py --target-pose "[0.4,0.0,0.523,0.3,-1.0,0.5]" --execute
 
 import argparse
 import math
