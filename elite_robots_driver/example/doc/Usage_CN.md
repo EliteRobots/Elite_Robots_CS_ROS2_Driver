@@ -20,8 +20,10 @@ ros2 launch elite_robots_driver elite_control.launch.py \
 ros2 control list_controllers
 ```
 
-笛卡尔 MoveIt 位姿示例已经迁移到 `elite_robots_moveit_config` 包。
-中文说明见 [`elite_robots_moveit_config/example/doc/Usage_CN.md`](../../../elite_robots_moveit_config/example/doc/Usage_CN.md)。
+## MoveIt 笛卡尔位姿示例
+
+笛卡尔位姿可参考 [`elite_robots_moveit_config/example/doc/Usage_CN.md`](../../../elite_robots_moveit_config/example/doc/Usage_CN.md)。
+在执行任何规划前，请先在 RViz 中仔细观察路径是否合理，并确保机器人当前工作空间和周围人员都处于安全状态，避免造成人身伤害。
 
 ## 安全关节运动示例
 

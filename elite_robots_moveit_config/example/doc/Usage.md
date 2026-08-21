@@ -26,6 +26,9 @@ ros2 launch elite_robots_moveit_config elite_moveit.launch.py \
 
 Plan to a Cartesian pose with MoveIt and optionally execute the planned trajectory.
 
+Before executing any plan, carefully inspect the trajectory in RViz and make sure the robot
+motion is safe for the current workspace and nearby people.
+
 Pose format:
 
 ```text

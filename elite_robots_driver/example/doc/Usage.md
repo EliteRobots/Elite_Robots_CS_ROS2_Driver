@@ -20,8 +20,11 @@ Check the active controller before sending motion:
 ros2 control list_controllers
 ```
 
-The Cartesian MoveIt pose-goal example was moved to the `elite_robots_moveit_config` package.
+## MoveIt Cartesian Pose Goal
+
+The Cartesian pose-goal example lives in the `elite_robots_moveit_config` package.
 See [`elite_robots_moveit_config/example/doc/Usage.md`](../../../elite_robots_moveit_config/example/doc/Usage.md).
+Before executing a plan, inspect it in RViz and make sure the motion is safe for the current workspace and nearby people.
 
 ## Safe Joint Move
 

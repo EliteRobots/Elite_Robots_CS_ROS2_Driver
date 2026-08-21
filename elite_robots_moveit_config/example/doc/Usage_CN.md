@@ -26,6 +26,8 @@ ros2 launch elite_robots_moveit_config elite_moveit.launch.py \
 
 通过 MoveIt 规划到指定笛卡尔位姿，并可选择是否执行规划出的轨迹。
 
+在执行任何规划前，请先在 RViz 中仔细观察路径是否合理，并确保机器人当前工作空间和周围人员都处于安全状态，避免造成人身伤害。
+
 位姿格式：
 
 ```text
