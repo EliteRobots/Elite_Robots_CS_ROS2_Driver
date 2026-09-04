@@ -2,6 +2,13 @@
 Changelog for package elite_robots_moveit_config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2026-09-04)
+------------------
+* Add C++ and Python Cartesian pose goal examples with bilingual documentation.
+* Add CS63A and CS630 launch support.
+* Increase trajectory execution margins for robot motion and declare the example dependencies.
+* Contributors: dukang123
+
 1.0.3 (2026-08-31)
 ------------------
 * Synchronize the package version for the repository-wide SDK CMake target integration fix.

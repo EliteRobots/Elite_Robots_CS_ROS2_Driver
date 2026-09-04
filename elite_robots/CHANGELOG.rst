@@ -2,6 +2,11 @@
 Changelog for package elite_robots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2026-09-04)
+------------------
+* Synchronize the metapackage version for the repository-wide feature release.
+* Contributors: dukang123, Yan
+
 1.0.3 (2026-08-31)
 ------------------
 * Synchronize the metapackage version for the SDK CMake target integration fix.

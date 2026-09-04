@@ -2,6 +2,11 @@
 Changelog for package elite_robots_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2026-09-04)
+------------------
+* Synchronize the package version for the repository-wide feature release.
+* Contributors: dukang123, Yan
+
 1.0.3 (2026-08-31)
 ------------------
 * Consume the Elite CS Series SDK through its exported CMake target.

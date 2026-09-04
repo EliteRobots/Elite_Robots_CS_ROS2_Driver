@@ -2,6 +2,14 @@
 Changelog for package elite_robots_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2026-09-04)
+------------------
+* Add dashboard services for setting and querying remote control mode.
+* Add runtime collision detection, collision sensitivity, and mounting plane configuration.
+* Improve trajectory feedback, cancellation handling, and servo command extrapolation.
+* Add CS63A and CS630 launch support and bilingual example documentation.
+* Contributors: dukang123
+
 1.0.3 (2026-08-31)
 ------------------
 * Link SDK consumers against the exported ``elite-cs-series-sdk::shared`` CMake target.

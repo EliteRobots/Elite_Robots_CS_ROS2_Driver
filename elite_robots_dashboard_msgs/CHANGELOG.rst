@@ -2,6 +2,11 @@
 Changelog for package elite_robots_dashboard_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2026-09-04)
+------------------
+* Add services for setting remote control and querying the current remote control mode.
+* Contributors: dukang123
+
 1.0.3 (2026-08-31)
 ------------------
 * Synchronize the package version for the repository-wide SDK CMake target integration fix.
