@@ -110,6 +110,9 @@ def launch_setup(context, *args, **kwargs):
             "prefix:=",
             prefix,
             " ",
+            "tf_prefix:=",
+            prefix,
+            " ",
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -135,8 +138,9 @@ def launch_setup(context, *args, **kwargs):
     )
     robot_description_semantic = {"robot_description_semantic": robot_description_semantic_content}
 
-    robot_description_kinematics = PathJoinSubstitution(
-        [FindPackageShare(moveit_config_package), "config", "kinematics.yaml"]
+    kinematics_file_value = LaunchConfiguration("kinematics_file").perform(context)
+    robot_description_kinematics = kinematics_file_value if os.path.isabs(kinematics_file_value) else PathJoinSubstitution(
+        [FindPackageShare(moveit_config_package), "config", kinematics_file_value]
     )
 
     robot_description_planning = {
@@ -158,15 +162,20 @@ def launch_setup(context, *args, **kwargs):
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
 
     # Trajectory Execution Configuration
-    controllers_yaml = load_yaml(
-        str(moveit_config_package.perform(context)),
-        os.path.join("config", moveit_controllers_file_value),
-    )
-    # the scaled_joint_trajectory_controller does not work on fake hardware
-    change_controllers = context.perform_substitution(use_fake_hardware)
-    if change_controllers == "true":
-        controllers_yaml["scaled_joint_trajectory_controller"]["default"] = False
-        controllers_yaml["joint_trajectory_controller"]["default"] = True
+    if os.path.isabs(moveit_controllers_file_value):
+        import yaml
+        with open(moveit_controllers_file_value, "r") as controller_file:
+            controllers_yaml = yaml.safe_load(controller_file)
+    else:
+        controllers_yaml = load_yaml(
+            str(moveit_config_package.perform(context)),
+            os.path.join("config", moveit_controllers_file_value),
+        )
+    # The dual-arm driver keeps scaled_joint_trajectory_controller active in
+    # fake and real modes, so MoveIt must target that action consistently.
+    controllers_yaml["scaled_joint_trajectory_controller"]["default"] = True
+    if "joint_trajectory_controller" in controllers_yaml:
+        controllers_yaml["joint_trajectory_controller"]["default"] = False
 
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_yaml,
@@ -214,8 +223,9 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # rviz with moveit configuration
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(moveit_config_package), "rviz", "view_robot.rviz"]
+    rviz_config_file_value = LaunchConfiguration("rviz_config_file").perform(context)
+    rviz_config_file = rviz_config_file_value if os.path.isabs(rviz_config_file_value) else PathJoinSubstitution(
+        [FindPackageShare(moveit_config_package), "rviz", rviz_config_file_value]
     )
     rviz_node = Node(
         package="rviz2",
@@ -366,6 +376,8 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz?")
     )
+    declared_arguments.append(DeclareLaunchArgument("rviz_config_file", default_value="view_robot.rviz"))
+    declared_arguments.append(DeclareLaunchArgument("kinematics_file", default_value="kinematics.yaml"))
     declared_arguments.append(
         DeclareLaunchArgument("launch_servo", default_value="true", description="Launch Servo?")
     )

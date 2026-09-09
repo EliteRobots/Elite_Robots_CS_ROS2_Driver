@@ -1,9 +1,11 @@
+import os
+
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, GroupAction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 
@@ -35,6 +37,8 @@ def launch_setup(context, *args, **kwargs):
     reverse_port = LaunchConfiguration("reverse_port")
     script_sender_port = LaunchConfiguration("script_sender_port")
     trajectory_port = LaunchConfiguration("trajectory_port")
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
+    spawn_controllers = LaunchConfiguration("spawn_controllers")
 
     cs_type_value = cs_type.perform(context)
     is_5_axis = cs_type_value.endswith("h")
@@ -147,9 +151,12 @@ def launch_setup(context, *args, **kwargs):
     robot_description = {"robot_description": robot_description_content}
 
     
-    initial_joint_controllers = PathJoinSubstitution(
-        [FindPackageShare(runtime_config_package), "config", controllers_file_value]
-    )
+    if os.path.isabs(controllers_file_value):
+        initial_joint_controllers = controllers_file_value
+    else:
+        initial_joint_controllers = PathJoinSubstitution(
+            [FindPackageShare(runtime_config_package), "config", controllers_file_value]
+        )
     
 
     rviz_config_file = PathJoinSubstitution(
@@ -244,7 +251,7 @@ def launch_setup(context, *args, **kwargs):
             arguments=[
                 name,
                 "--controller-manager",
-                "/controller_manager",
+                controller_manager_name,
                 "--controller-manager-timeout",
                 controller_spawner_timeout,
             ]
@@ -268,25 +275,25 @@ def launch_setup(context, *args, **kwargs):
 
       
     # There may be other controllers of the joints, but this is the initially-started one
-    initial_joint_controller_spawner_started = Node(
+    initial_joint_controller_spawner_started_node = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             initial_joint_controller,
             "-c",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             controller_spawner_timeout,
         ],
         condition=IfCondition(activate_joint_controller),
     )
-    initial_joint_controller_spawner_stopped = Node(
+    initial_joint_controller_spawner_stopped_node = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
             initial_joint_controller,
             "-c",
-            "/controller_manager",
+            controller_manager_name,
             "--controller-manager-timeout",
             controller_spawner_timeout,
             "--inactive",
@@ -295,6 +302,15 @@ def launch_setup(context, *args, **kwargs):
     )
     
 
+    # Start the joint controller after the broadcaster requests have settled.
+    initial_joint_controller_spawner_started = initial_joint_controller_spawner_started_node
+    initial_joint_controller_spawner_stopped = initial_joint_controller_spawner_stopped_node
+
+    controller_group = GroupAction(
+        actions=[initial_joint_controller_spawner_stopped, initial_joint_controller_spawner_started] + controller_spawners,
+        condition=IfCondition(spawn_controllers),
+    )
+
     nodes_to_start = [
         control_node,
         eli_control_node,
@@ -302,9 +318,8 @@ def launch_setup(context, *args, **kwargs):
         controller_stopper_node,
         robot_state_publisher_node,
         rviz_node,
-        initial_joint_controller_spawner_stopped,
-        initial_joint_controller_spawner_started,
-    ] + controller_spawners
+        controller_group,
+    ]
 
     return nodes_to_start
 
@@ -475,4 +490,8 @@ def generate_launch_description():
             description="Port that will be opened for trajectory control.",
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument("controller_manager_name", default_value="/controller_manager")
+    )
+    declared_arguments.append(DeclareLaunchArgument("spawn_controllers", default_value="true"))
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])

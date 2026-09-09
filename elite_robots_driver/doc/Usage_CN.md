@@ -41,6 +41,16 @@ ros2 launch elite_robots_driver elite_control.launch.py robot_ip:=xxx.xxx.xxx.xx
 ros2 launch elite_robots_driver elite_control.launch.py robot_ip:=xxx.xxx.xxx.xxx local_ip:=yyy.yyy.yyy.yyy cs_type:=zzzz use_fake_hardware:=true
 ```
 
+- 多臂控制系统:
+
+如果需要实现多臂控制系统，请参考下面的多臂组装文档。文档中提供了完整的
+`dual_arm_control.launch.py` 和 `dual_moveit.launch.py` 示例代码，以及参数
+配置和启动方法：
+
+```text
+elite_robots_driver/doc/MultiArm_CN.md
+```
+
 ### 2. 向控制器发送指令
 
 在运行其他指令之前，首先使用`ros2 control list_controllers`指令来检查控制器的状态（记得使用前文提到的命令安装“ros2controlcli”包）。
