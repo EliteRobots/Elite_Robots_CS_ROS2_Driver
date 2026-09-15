@@ -1,4 +1,6 @@
 import os
+import re
+import tempfile
 
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterFile
@@ -8,6 +10,29 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, GroupAction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+
+
+def make_update_rate_file(source_path, controller_manager_name):
+    """Qualify the controller-manager YAML key for namespaced instances."""
+    with open(source_path, "r", encoding="utf-8") as source_file:
+        content = source_file.read()
+    content = re.sub(
+        r"^controller_manager:",
+        f"{controller_manager_name}:",
+        content,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    output = tempfile.NamedTemporaryFile(
+        prefix="controller_manager_update_rate_",
+        suffix=".yaml",
+        mode="w",
+        encoding="utf-8",
+        delete=False,
+    )
+    output.write(content)
+    output.close()
+    return output.name
 
 
 def launch_setup(context, *args, **kwargs):
@@ -170,6 +195,11 @@ def launch_setup(context, *args, **kwargs):
             "config",
             "cs_update_rate.yaml",
         ]
+    )
+    update_rate_config_file_value = update_rate_config_file.perform(context)
+    update_rate_config_file = make_update_rate_file(
+        update_rate_config_file_value,
+        controller_manager_name.perform(context),
     )
 
     control_node = Node(

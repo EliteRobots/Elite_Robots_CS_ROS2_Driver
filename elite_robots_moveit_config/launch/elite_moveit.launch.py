@@ -34,6 +34,7 @@ def launch_setup(context, *args, **kwargs):
     launch_servo = LaunchConfiguration("launch_servo")
     publish_robot_description = LaunchConfiguration("publish_robot_description")
     publish_robot_description_semantic = LaunchConfiguration("publish_robot_description_semantic")
+    prefer_scaled_controller = LaunchConfiguration("prefer_scaled_controller")
 
     cs_type_value = cs_type.perform(context)
     is_5_axis = cs_type_value.endswith("h")
@@ -171,11 +172,21 @@ def launch_setup(context, *args, **kwargs):
             str(moveit_config_package.perform(context)),
             os.path.join("config", moveit_controllers_file_value),
         )
-    # The dual-arm driver keeps scaled_joint_trajectory_controller active in
-    # fake and real modes, so MoveIt must target that action consistently.
-    controllers_yaml["scaled_joint_trajectory_controller"]["default"] = True
-    if "joint_trajectory_controller" in controllers_yaml:
-        controllers_yaml["joint_trajectory_controller"]["default"] = False
+    # Preserve the historical single-arm fake behavior unless a composed
+    # multi-arm launch explicitly requests the scaled controller.  Also avoid
+    # indexing optional controller entries in user-provided YAML files.
+    scaled_controller = controllers_yaml.get("scaled_joint_trajectory_controller")
+    joint_controller = controllers_yaml.get("joint_trajectory_controller")
+    if prefer_scaled_controller.perform(context).lower() == "true":
+        if scaled_controller is not None:
+            scaled_controller["default"] = True
+        if joint_controller is not None:
+            joint_controller["default"] = False
+    elif use_fake_hardware.perform(context).lower() == "true":
+        if scaled_controller is not None:
+            scaled_controller["default"] = False
+        if joint_controller is not None:
+            joint_controller["default"] = True
 
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_yaml,
@@ -380,6 +391,13 @@ def generate_launch_description():
     declared_arguments.append(DeclareLaunchArgument("kinematics_file", default_value="kinematics.yaml"))
     declared_arguments.append(
         DeclareLaunchArgument("launch_servo", default_value="true", description="Launch Servo?")
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "prefer_scaled_controller",
+            default_value="false",
+            description="Prefer scaled_joint_trajectory_controller when available.",
+        )
     )
     declared_arguments.append(
         DeclareLaunchArgument(

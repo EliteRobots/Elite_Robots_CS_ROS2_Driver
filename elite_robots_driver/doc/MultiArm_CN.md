@@ -1,13 +1,20 @@
 # 在本项目中组装多台 Elite 机械臂
 
-这份文档可以单独使用。请直接在本项目对应的 `launch/` 目录创建下面两个文件：
+这份文档可以单独使用。下面两个 launch 文件可以在任意目录创建：
 
 ```text
-elite_robots_driver/launch/dual_arm_control.launch.py
-elite_robots_moveit_config/launch/dual_moveit.launch.py
+dual_arm_control.launch.py
+dual_moveit.launch.py
 ```
 
-然后将本文对应章节中的完整代码复制进去，重新编译本项目即可。
+将本文对应章节中的完整代码复制进去。完成工作区编译并 source 后，
+进入文件所在目录即可直接按文件名启动：
+
+```bash
+cd ~/dual_arm_launch
+ros2 launch dual_arm_control.launch.py
+ros2 launch dual_moveit.launch.py
+```
 
 驱动包提供可复用的单臂入口：
 
@@ -21,17 +28,17 @@ namespace、TF/joint prefix、controller manager、通信端口和控制器。
 ## 1. 创建双臂 launch 文件
 
 ```text
-src/Elite_Robots_CS_ROS2_Driver/
-├── elite_robots_driver/launch/dual_arm_control.launch.py
-└── elite_robots_moveit_config/launch/dual_moveit.launch.py
+~/dual_arm_launch/
+├── dual_arm_control.launch.py
+└── dual_moveit.launch.py
 ```
 
 ## 2. 完整双臂驱动 launch
 
-将下面内容完整保存为：
+将下面内容完整保存为任意目录下的 `dual_arm_control.launch.py`：
 
 ```text
-elite_robots_driver/launch/dual_arm_control.launch.py
+dual_arm_control.launch.py
 ```
 
 ```python
@@ -47,6 +54,7 @@ from launch.actions import (
     GroupAction,
     IncludeLaunchDescription,
     LogInfo,
+    OpaqueFunction,
     RegisterEventHandler,
 )
 from launch.event_handlers import OnProcessExit
@@ -68,10 +76,16 @@ CONTROLLERS = [
 ]
 
 
-def make_controller_file(namespace, prefix):
+def make_controller_file(namespace, prefix, cs_type):
+    controller_filename = (
+        "elite_cs_controllers_5f.yaml"
+        if cs_type.endswith("h")
+        else "elite_cs_controllers.yaml"
+    )
     source_path = (
         get_package_share_directory("elite_robots_driver")
-        + "/config/elite_cs_controllers.yaml"
+        + "/config/"
+        + controller_filename
     )
     with open(source_path, "r", encoding="utf-8") as source_file:
         content = source_file.read()
@@ -111,7 +125,7 @@ def arm_group(
     headless_mode,
     spawner_timeout,
 ):
-    controller_file = make_controller_file(namespace, prefix)
+    controller_file = make_controller_file(namespace, prefix, cs_type)
     single_arm_launch = PathJoinSubstitution(
         [
             FindPackageShare("elite_robots_driver"),
@@ -187,6 +201,39 @@ def arm_group(
     )
 
 
+def setup_arms(context, *args, **kwargs):
+    arm1_cs_type = LaunchConfiguration("arm1_cs_type").perform(context)
+    arm2_cs_type = LaunchConfiguration("arm2_cs_type").perform(context)
+    return [
+        arm_group(
+            "arm1", "arm1_", LaunchConfiguration("arm1_ip"),
+            (
+                LaunchConfiguration("arm1_reverse_port"),
+                LaunchConfiguration("arm1_script_sender_port"),
+                LaunchConfiguration("arm1_trajectory_port"),
+                LaunchConfiguration("arm1_script_command_port"),
+            ),
+            arm1_cs_type,
+            LaunchConfiguration("use_fake_hardware"),
+            LaunchConfiguration("headless_mode"),
+            LaunchConfiguration("controller_spawner_timeout"),
+        ),
+        arm_group(
+            "arm2", "arm2_", LaunchConfiguration("arm2_ip"),
+            (
+                LaunchConfiguration("arm2_reverse_port"),
+                LaunchConfiguration("arm2_script_sender_port"),
+                LaunchConfiguration("arm2_trajectory_port"),
+                LaunchConfiguration("arm2_script_command_port"),
+            ),
+            arm2_cs_type,
+            LaunchConfiguration("use_fake_hardware"),
+            LaunchConfiguration("headless_mode"),
+            LaunchConfiguration("controller_spawner_timeout"),
+        ),
+    ]
+
+
 def generate_launch_description():
     arm1_ip = LaunchConfiguration("arm1_ip")
     arm2_ip = LaunchConfiguration("arm2_ip")
@@ -221,18 +268,7 @@ def generate_launch_description():
             DeclareLaunchArgument("arm2_script_sender_port", default_value="50102"),
             DeclareLaunchArgument("arm2_trajectory_port", default_value="50103"),
             DeclareLaunchArgument("arm2_script_command_port", default_value="50104"),
-            arm_group(
-                "arm1", "arm1_", arm1_ip,
-                (arm1_reverse_port, arm1_script_sender_port,
-                 arm1_trajectory_port, arm1_script_command_port),
-                arm1_cs_type, use_fake_hardware, headless_mode, spawner_timeout,
-            ),
-            arm_group(
-                "arm2", "arm2_", arm2_ip,
-                (arm2_reverse_port, arm2_script_sender_port,
-                 arm2_trajectory_port, arm2_script_command_port),
-                arm2_cs_type, use_fake_hardware, headless_mode, spawner_timeout,
-            ),
+            OpaqueFunction(function=setup_arms),
         ]
     )
 ```
@@ -247,6 +283,8 @@ def generate_launch_description():
 - 最后输出一次绿色的 `All required controllers are ready.`
 
 默认 IP、型号和端口都可以通过启动参数覆盖，不需要修改 Python 文件。
+
+对于 `cs520h` 等五轴型号，模板会自动选择该机械臂对应的五轴控制器配置和关节列表。
 
 注意：fake hardware 的 mock 接口不提供 GPIO command interfaces，因此
 `io_and_status_controller` 在 fake 测试中可能显示为 `inactive`；这不是双臂
@@ -264,7 +302,7 @@ source install/setup.bash
 fake 双臂：
 
 ```bash
-ros2 launch elite_robots_driver dual_arm_control.launch.py \
+ros2 launch dual_arm_control.launch.py \
   use_fake_hardware:=true \
   headless_mode:=false \
   arm1_cs_type:=cs63 \
@@ -274,7 +312,7 @@ ros2 launch elite_robots_driver dual_arm_control.launch.py \
 真机双臂：
 
 ```bash
-ros2 launch elite_robots_driver dual_arm_control.launch.py \
+ros2 launch dual_arm_control.launch.py \
   use_fake_hardware:=false \
   headless_mode:=true \
   arm1_ip:=192.168.1.101 \
@@ -287,7 +325,7 @@ ros2 launch elite_robots_driver dual_arm_control.launch.py \
 如果端口冲突，也可以直接覆盖，例如：
 
 ```bash
-ros2 launch elite_robots_driver dual_arm_control.launch.py \
+ros2 launch dual_arm_control.launch.py \
   arm1_ip:=192.168.1.101 \
   arm2_ip:=192.168.1.102 \
   arm1_reverse_port:=51001 \
@@ -319,8 +357,7 @@ ros2 action list | grep follow_joint_trajectory
 
 ## 5. 完整双臂 MoveIt launch（可选）
 
-不使用 MoveIt 时，到第 4 节就结束。使用 MoveIt 时，在本项目的
-`elite_robots_moveit_config/launch/` 目录创建：
+不使用 MoveIt 时，到第 4 节就结束。使用 MoveIt 时，在任意目录创建：
 
 ```text
 dual_moveit.launch.py
@@ -337,18 +374,24 @@ import tempfile
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    GroupAction,
+    IncludeLaunchDescription,
+    OpaqueFunction,
+)
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import PushRosNamespace
 from launch_ros.substitutions import FindPackageShare
 
 
-def make_controller_file(prefix):
+def make_controller_file(prefix, cs_type):
+    controller_filename = "controllers_5f.yaml" if cs_type.endswith("h") else "controllers.yaml"
     source_path = os.path.join(
         get_package_share_directory("elite_robots_moveit_config"),
         "config",
-        "controllers.yaml",
+        controller_filename,
     )
     with open(source_path, "r", encoding="utf-8") as source_file:
         content = source_file.read()
@@ -435,12 +478,30 @@ def arm_moveit(namespace, prefix, cs_type, use_fake_hardware, launch_rviz):
                 "use_fake_hardware": use_fake_hardware,
                 "launch_rviz": launch_rviz,
                 "launch_servo": "false",
-                "moveit_controllers_file": make_controller_file(prefix),
+                "moveit_controllers_file": make_controller_file(prefix, cs_type),
                 "kinematics_file": make_kinematics_file(group),
                 "rviz_config_file": make_rviz_file(group, namespace),
+                "prefer_scaled_controller": "true",
             }.items(),
         ),
     ])
+
+
+def setup_arms(context, *args, **kwargs):
+    arm1_cs_type = LaunchConfiguration("arm1_cs_type").perform(context)
+    arm2_cs_type = LaunchConfiguration("arm2_cs_type").perform(context)
+    return [
+        arm_moveit(
+            "arm1", "arm1_", arm1_cs_type,
+            LaunchConfiguration("use_fake_hardware"),
+            LaunchConfiguration("launch_rviz"),
+        ),
+        arm_moveit(
+            "arm2", "arm2_", arm2_cs_type,
+            LaunchConfiguration("use_fake_hardware"),
+            LaunchConfiguration("launch_rviz"),
+        ),
+    ]
 
 
 def generate_launch_description():
@@ -449,24 +510,27 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument("use_fake_hardware", default_value="false"),
         DeclareLaunchArgument("launch_rviz", default_value="true"),
-        arm_moveit("arm1", "arm1_", "cs63", use_fake_hardware, launch_rviz),
-        arm_moveit("arm2", "arm2_", "cs63", use_fake_hardware, launch_rviz),
+        DeclareLaunchArgument("arm1_cs_type", default_value="cs63"),
+        DeclareLaunchArgument("arm2_cs_type", default_value="cs63"),
+        OpaqueFunction(function=setup_arms),
     ])
 ```
 
 fake 双臂启动：
 
 ```bash
-ros2 launch elite_robots_moveit_config dual_moveit.launch.py \
+ros2 launch dual_moveit.launch.py \
   use_fake_hardware:=true \
   launch_rviz:=true
 ```
 
-真机则使用 `use_fake_hardware:=false`。启动顺序是先启动第 2 节的
+如果某台机械臂是五轴型号，可设置 `arm1_cs_type:=cs520h` 或
+`arm2_cs_type:=cs520h`，模板会自动选择五轴 MoveIt 控制器列表。真机则使用
+`use_fake_hardware:=false`。启动顺序是先启动第 2 节的
 `dual_arm_control.launch.py`，再启动：
 
 ```bash
-ros2 launch elite_robots_moveit_config dual_moveit.launch.py
+ros2 launch dual_moveit.launch.py
 ```
 
 ## 6. 单臂启动不受影响
