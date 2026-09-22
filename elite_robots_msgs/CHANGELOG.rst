@@ -2,6 +2,11 @@
 Changelog for package elite_robots_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add collision detection, collision sensitivity, and mounting plane service definitions.
+* Synchronize the package version to 1.2.0 for the upcoming Jazzy feature parity update.
+
 1.0.3 (2026-08-31)
 ------------------
 * Synchronize the package version for the repository-wide SDK CMake target integration fix.

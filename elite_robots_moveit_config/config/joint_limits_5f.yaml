@@ -1,4 +1,4 @@
-# These limits are used by MoveIt and augment/override the definitions in eli_cs_robot_description.
+# These limits are used by MoveIt and augment/override the definitions in elite_robots_description.
 #
 # While the robot does not inherently have any limits on joint accelerations (only on torques),
 # MoveIt needs them for time parametrization. They were chosen conservatively to work in most use

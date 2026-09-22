@@ -126,6 +126,40 @@ p {
 #### *custom_request*[(elite_robots_dashboard_msgs/srv/CustomRequest)](/elite_robots_dashboard_msgs/srv/CustomRequest.srv)
 发送自定义指令并且接收回复。
 
+#### *set_remote_control*[(elite_robots_dashboard_msgs/srv/SetRemoteControl)](/elite_robots_dashboard_msgs/srv/SetRemoteControl.srv)
+打开或关闭机器人远程控制模式。
+
+#### *get_remote_control_mode*[(elite_robots_dashboard_msgs/srv/GetRemoteControlMode)](/elite_robots_dashboard_msgs/srv/GetRemoteControlMode.srv)
+获取当前远程控制模式。返回值包含 `UNKNOWN`、`NONE`、`LOCAL` 和 `REMOTE`。
+
+## primary_client
+
+### 服务
+
+#### *power_on*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口开启机器人电机。
+
+#### *power_off*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口关闭机器人电机。
+
+#### *brake_release*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口释放抱闸。
+
+#### *pause*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口暂停当前任务。
+
+#### *stop*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口停止当前任务。
+
+#### *unlock_protective_stop*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口解除保护停止。
+
+#### *restart_safety*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+通过 Primary 端口重启安全系统。
+
+#### *connect*[(std_srvs/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
+连接机器人 Primary 端口。
+
 ## GPIO 控制器
 控制器提供数字 IO 发布器、工具数据发布器等功能，同时还提供可以设置机器人 IO 状态的服务。
 
@@ -165,3 +199,12 @@ p {
 
 #### *zero_ftsensor*[(std_srvs/srv/Trigger)](https://docs.ros.org/en/api/std_srvs/html/srv/Trigger.html)
 归零 ft 传感器。
+
+#### *set_collision_detect_enabled*[(elite_robots_msgs/srv/SetCollisionDetectEnabled)](/elite_robots_msgs/srv/SetCollisionDetectEnabled.srv)
+打开或关闭碰撞检测。
+
+#### *set_collision_sensitivity*[(elite_robots_msgs/srv/SetCollisionSensitivity)](/elite_robots_msgs/srv/SetCollisionSensitivity.srv)
+设置碰撞灵敏度百分比，取值范围为 `[10, 100]`。
+
+#### *set_mounting_plane*[(elite_robots_msgs/srv/SetMountingPlane)](/elite_robots_msgs/srv/SetMountingPlane.srv)
+设置机器人安装平面。`z_rotation` 和 `tilt` 的单位均为弧度。

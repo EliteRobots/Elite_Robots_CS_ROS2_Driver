@@ -2,6 +2,10 @@
 Changelog for package elite_robots_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Synchronize the package version to 1.2.0 for the upcoming Jazzy feature parity update.
+
 1.0.3 (2026-08-31)
 ------------------
 * Consume the Elite CS Series SDK through its exported CMake target.

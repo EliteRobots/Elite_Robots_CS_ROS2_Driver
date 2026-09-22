@@ -81,6 +81,15 @@ controller_interface::InterfaceConfiguration GPIOController::command_interface_c
     config.names.emplace_back(tf_prefix + "hand_back_control/hand_back_control_cmd");
     config.names.emplace_back(tf_prefix + "hand_back_control/hand_back_control_async_success");
 
+    // runtime control configuration
+    config.names.emplace_back(tf_prefix + "collision_detect/enabled_cmd");
+    config.names.emplace_back(tf_prefix + "collision_detect/enabled_async_success");
+    config.names.emplace_back(tf_prefix + "collision_sensitivity/ratio_cmd");
+    config.names.emplace_back(tf_prefix + "collision_sensitivity/ratio_async_success");
+    config.names.emplace_back(tf_prefix + "mounting_plane/z_rotation");
+    config.names.emplace_back(tf_prefix + "mounting_plane/tilt");
+    config.names.emplace_back(tf_prefix + "mounting_plane/mounting_plane_async_success");
+
     return config;
 }
 
@@ -287,6 +296,17 @@ controller_interface::CallbackReturn ELITE_CS_CONTROLLER::GPIOController::on_act
 
         tare_sensor_srv_ = get_node()->create_service<std_srvs::srv::Trigger>(
             "~/zero_ftsensor", std::bind(&GPIOController::zeroFTSensor, this, std::placeholders::_1, std::placeholders::_2));
+
+        set_collision_detect_enabled_srv_ = get_node()->create_service<elite_robots_msgs::srv::SetCollisionDetectEnabled>(
+            "~/set_collision_detect_enabled",
+            std::bind(&GPIOController::setCollisionDetectEnabled, this, std::placeholders::_1, std::placeholders::_2));
+
+        set_collision_sensitivity_srv_ = get_node()->create_service<elite_robots_msgs::srv::SetCollisionSensitivity>(
+            "~/set_collision_sensitivity",
+            std::bind(&GPIOController::setCollisionSensitivity, this, std::placeholders::_1, std::placeholders::_2));
+
+        set_mounting_plane_srv_ = get_node()->create_service<elite_robots_msgs::srv::SetMountingPlane>(
+            "~/set_mounting_plane", std::bind(&GPIOController::setMountingPlane, this, std::placeholders::_1, std::placeholders::_2));
     } catch (...) {
         return LifecycleNodeInterface::CallbackReturn::ERROR;
     }
@@ -304,6 +324,13 @@ controller_interface::CallbackReturn ELITE_CS_CONTROLLER::GPIOController::on_dea
         task_state_pub_.reset();
         set_io_srv_.reset();
         set_speed_slider_srv_.reset();
+        resend_external_script_srv_.reset();
+        hand_back_control_srv_.reset();
+        set_payload_srv_.reset();
+        tare_sensor_srv_.reset();
+        set_collision_detect_enabled_srv_.reset();
+        set_collision_sensitivity_srv_.reset();
+        set_mounting_plane_srv_.reset();
     } catch (...) {
         return LifecycleNodeInterface::CallbackReturn::ERROR;
     }
@@ -524,6 +551,76 @@ bool GPIOController::zeroFTSensor(std_srvs::srv::Trigger::Request::SharedPtr /*r
         return false;
     }
 
+    return true;
+}
+
+bool GPIOController::setCollisionDetectEnabled(
+    const elite_robots_msgs::srv::SetCollisionDetectEnabled::Request::SharedPtr req,
+    elite_robots_msgs::srv::SetCollisionDetectEnabled::Response::SharedPtr resp) {
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_DETECT_ENABLED_SUCCESS], ASYNC_WAITING);
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_DETECT_ENABLED], req->enable ? 1.0 : 0.0);
+
+    if (!waitForAsyncCommand([&]() { return getInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_DETECT_ENABLED_SUCCESS]); })) {
+        RCLCPP_WARN(get_node()->get_logger(),
+                    "Could not verify that collision detection was set. (This might happen when using the mocked interface)");
+    }
+
+    resp->success = static_cast<bool>(getInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_DETECT_ENABLED_SUCCESS]));
+    if (resp->success) {
+        RCLCPP_INFO(get_node()->get_logger(), "Collision detection has been %s", req->enable ? "enabled" : "disabled");
+    } else {
+        RCLCPP_ERROR(get_node()->get_logger(), "Could not set collision detection");
+        return false;
+    }
+    return true;
+}
+
+bool GPIOController::setCollisionSensitivity(
+    const elite_robots_msgs::srv::SetCollisionSensitivity::Request::SharedPtr req,
+    elite_robots_msgs::srv::SetCollisionSensitivity::Response::SharedPtr resp) {
+    if (req->ratio < 10 || req->ratio > 100) {
+        RCLCPP_WARN(get_node()->get_logger(), "Collision sensitivity ratio must be within [10, 100]. Request ignored.");
+        resp->success = false;
+        return false;
+    }
+
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_SENSITIVITY_SUCCESS], ASYNC_WAITING);
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_SENSITIVITY], static_cast<double>(req->ratio));
+
+    if (!waitForAsyncCommand([&]() { return getInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_SENSITIVITY_SUCCESS]); })) {
+        RCLCPP_WARN(get_node()->get_logger(),
+                    "Could not verify that collision sensitivity was set. (This might happen when using the mocked interface)");
+    }
+
+    resp->success = static_cast<bool>(getInterfaceValue(command_interfaces_[(int)CommandOffset::COLLISION_SENSITIVITY_SUCCESS]));
+    if (resp->success) {
+        RCLCPP_INFO(get_node()->get_logger(), "Collision sensitivity has been set to %d%%", req->ratio);
+    } else {
+        RCLCPP_ERROR(get_node()->get_logger(), "Could not set collision sensitivity");
+        return false;
+    }
+    return true;
+}
+
+bool GPIOController::setMountingPlane(const elite_robots_msgs::srv::SetMountingPlane::Request::SharedPtr req,
+                                      elite_robots_msgs::srv::SetMountingPlane::Response::SharedPtr resp) {
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::MOUNTING_PLANE_SUCCESS], ASYNC_WAITING);
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::MOUNTING_Z_ROTATION], req->z_rotation);
+    setInterfaceValue(command_interfaces_[(int)CommandOffset::MOUNTING_TILT], req->tilt);
+
+    if (!waitForAsyncCommand([&]() { return getInterfaceValue(command_interfaces_[(int)CommandOffset::MOUNTING_PLANE_SUCCESS]); })) {
+        RCLCPP_WARN(get_node()->get_logger(),
+                    "Could not verify that mounting plane was set. (This might happen when using the mocked interface)");
+    }
+
+    resp->success = static_cast<bool>(getInterfaceValue(command_interfaces_[(int)CommandOffset::MOUNTING_PLANE_SUCCESS]));
+    if (resp->success) {
+        RCLCPP_INFO(get_node()->get_logger(), "Mounting plane has been set to z_rotation %.6f rad, tilt %.6f rad", req->z_rotation,
+                    req->tilt);
+    } else {
+        RCLCPP_ERROR(get_node()->get_logger(), "Could not set mounting plane");
+        return false;
+    }
     return true;
 }
 
