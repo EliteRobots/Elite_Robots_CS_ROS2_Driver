@@ -246,6 +246,10 @@ install(
   DESTINATION share/${PROJECT_NAME}/example/doc/
 )
 install(
+  DIRECTORY doc/
+  DESTINATION share/${PROJECT_NAME}/doc/
+)
+install(
   PROGRAMS example/python/example_safe_joint_move.py
   DESTINATION lib/${PROJECT_NAME}
   RENAME example_safe_joint_move_py

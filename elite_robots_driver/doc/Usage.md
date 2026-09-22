@@ -41,6 +41,17 @@ After starting the launch file start the ExternalControl EliCOs task from the pe
 ros2 launch elite_robots_driver elite_control.launch.py robot_ip:=xxx.xxx.xxx.xxx local_ip:=yyy.yyy.yyy.yyy cs_type:=zzzz use_fake_hardware:=true
 ```
 
+- Multi-arm control system:
+
+To implement a multi-arm control system, refer to the multi-arm composition
+document below. It provides complete `dual_arm_control.launch.py` and
+`dual_moveit.launch.py` examples, parameter configuration, and startup
+instructions:
+
+```text
+elite_robots_driver/doc/MultiArm.md
+```
+
 ### 2. Sending commands to controllers
 
 Before running any commands, first check the controllers’ state using `ros2 control list_controllers` (Remember to install the ros2controlcli package as mentioned above).
