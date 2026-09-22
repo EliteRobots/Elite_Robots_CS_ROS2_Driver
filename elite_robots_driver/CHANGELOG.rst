@@ -2,6 +2,12 @@
 Changelog for package elite_robots_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add configurable controller-manager targets and optional controller spawning for multi-arm launch composition.
+* Accept absolute controller configuration paths and qualify update-rate parameters for namespaced controller managers.
+* Add bilingual multi-arm driver and MoveIt setup guides, link them from the usage guides, and install the documentation with the package.
+
 1.1.0 (2026-09-04)
 ------------------
 * Add dashboard services for setting and querying remote control mode.

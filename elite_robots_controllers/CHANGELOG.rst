@@ -2,6 +2,10 @@
 Changelog for package elite_robots_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Synchronize the package version to 1.2.0 for the upcoming multi-arm launch and documentation update.
+
 1.1.0 (2026-09-04)
 ------------------
 * Add GPIO controller services for enabling collision detection, setting collision sensitivity, and configuring the mounting plane.

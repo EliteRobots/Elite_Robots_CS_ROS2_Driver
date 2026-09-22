@@ -2,6 +2,10 @@
 Changelog for package elite_robots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Synchronize the package version to 1.2.0 for the upcoming multi-arm launch and documentation update.
+
 1.1.0 (2026-09-04)
 ------------------
 * Synchronize the metapackage version for the repository-wide feature release.

@@ -2,6 +2,12 @@
 Changelog for package elite_robots_moveit_config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Propagate the joint prefix to the robot description TF prefix for multi-arm setups.
+* Add configurable kinematics and RViz files and accept absolute paths for these files and MoveIt controller configurations.
+* Add an option to prefer the scaled trajectory controller and tolerate omitted controller entries in custom configurations.
+
 1.1.0 (2026-09-04)
 ------------------
 * Add C++ and Python Cartesian pose goal examples with bilingual documentation.
