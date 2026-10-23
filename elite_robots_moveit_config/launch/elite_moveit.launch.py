@@ -149,6 +149,10 @@ def launch_setup(context, *args, **kwargs):
         os.path.join("config", moveit_joint_limits_file_value),
     )
     prefix_value = prefix.perform(context)
+    # Older launch defaults used shell quotes to express an empty Xacro prefix.
+    # Those quotes are not part of the joint names in YAML parameters.
+    if prefix_value in ('""', "''"):
+        prefix_value = ""
     if prefix_value and "joint_limits" in joint_limits_config:
         joint_limits_config["joint_limits"] = {
             (name if name.startswith(prefix_value) else prefix_value + name): limits
@@ -395,7 +399,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "prefix",
-            default_value='""',
+            default_value="",
             description="Prefix of the joint names, useful for "
             "multi-robot setup. If changed than also joint names in the controllers' configuration "
             "have to be updated.",

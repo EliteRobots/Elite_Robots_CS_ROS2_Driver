@@ -14,7 +14,7 @@
     - joint_trajectory_controller
     - scaled_joint_trajectory_controller
 
-> 注意：以下的控制器也会被启动：joint_state_broadcaster、speed_scaling_state_broadcaster、force_torque_sensor_broadcaster、io_and_status_controller。
+> 注意：`spawn_controllers:=true` 时会加载状态广播器和 IO 控制器。虚拟硬件的 IO 控制器保持未激活，并将 `scaled_joint_trajectory_controller` 替换为 `joint_trajectory_controller`，因为 GenericSystem 不模拟机器人的 IO 初始化握手和速度缩放。
 
 > 注意：使用`ros2 control list_controllers`指令可以查看ros2正在使用的控制器。因此必须安装ros2controlcli包，可以使用指令：`sudo apt-get install ros-${ROS_DISTRO}-ros2controlcli`安装。
 

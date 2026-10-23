@@ -4,6 +4,7 @@ Changelog for package elite_robots_moveit_config
 
 Forthcoming
 -----------
+* Normalize empty joint prefixes so acceleration limits reach the Jazzy time-parameterization adapter.
 * Propagate the joint prefix to the robot description TF prefix for multi-arm setups.
 * Apply the joint prefix to MoveIt joint limits so Jazzy trajectory time parameterization finds each arm's acceleration limits.
 * Add configurable kinematics and RViz files and accept absolute paths for these files and MoveIt controller configurations.

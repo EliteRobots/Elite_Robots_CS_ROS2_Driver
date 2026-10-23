@@ -14,7 +14,7 @@ The arguments for launch files can be listed using `ros2 launch elite_robots_dri
     - joint_trajectory_controller
     - scaled_joint_trajectory_controller
 
-> Note : joint_state_broadcaster, speed_scaling_state_broadcaster, force_torque_sensor_broadcaster, and io_and_status_controller will always start.
+> Note: With `spawn_controllers:=true`, the state broadcasters and IO controller are loaded. Fake hardware keeps the IO controller inactive and replaces `scaled_joint_trajectory_controller` with `joint_trajectory_controller`, because GenericSystem does not simulate the robot's IO handshake or speed scaling.
 
 > Note : list all loaded controllers using `ros2 control list_controllers command`. For this, the package ros2controlcli must be installed. Command: `sudo apt-get install ros-${ROS_DISTRO}-ros2controlcli`.
 

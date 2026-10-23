@@ -4,6 +4,7 @@ Changelog for package elite_robots_driver
 
 Forthcoming
 -----------
+* Use the unscaled trajectory controller and leave IO inactive for single-arm fake hardware as well.
 * Add Primary-port robot control services and skip the dashboard component when its connection fails.
 * Add configurable controller-manager targets and optional controller spawning for multi-arm launch composition.
 * Accept absolute controller configuration paths and qualify update-rate parameters for namespaced controller managers.
