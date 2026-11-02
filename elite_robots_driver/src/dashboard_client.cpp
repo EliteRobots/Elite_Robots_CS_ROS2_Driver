@@ -19,20 +19,34 @@ int8_t toRosTaskStatus(const ELITE::TaskStatus sdk_status) {
             return elite_robots_msgs::msg::TaskStatus::UNKNOWN;
     }
 }
+
+int8_t toRosRemoteControlMode(const ELITE::RemoteControlMode sdk_mode) {
+    using Response = elite_robots_dashboard_msgs::srv::GetRemoteControlMode::Response;
+    switch (sdk_mode) {
+        case ELITE::RemoteControlMode::REMOTE:
+            return Response::REMOTE;
+        case ELITE::RemoteControlMode::LOCAL:
+            return Response::LOCAL;
+        case ELITE::RemoteControlMode::NONE:
+            return Response::NONE;
+        case ELITE::RemoteControlMode::UNKNOWN:
+        default:
+            return Response::UNKNOWN;
+    }
+}
 }  // namespace
 
 DashboardClient::DashboardClient(const rclcpp::NodeOptions& options) : Node("dashboard_client", options) {
     this->declare_parameter<std::string>("robot_ip", "192.168.51.244");
 
-    bool is_connect_success = false;
     try {
         RCLCPP_INFO(rclcpp::get_logger("EliteCSDashboardInterface"), "Connecting to robot ...");
         std::string robot_ip = this->get_parameter("robot_ip").as_string();
-        is_connect_success = client_.connect(robot_ip);
+        is_connected_ = client_.connect(robot_ip);
     } catch (const ELITE::EliteException& e) {
-        is_connect_success = false;
+        is_connected_ = false;
     }
-    if (is_connect_success) {
+    if (is_connected_) {
         RCLCPP_INFO(rclcpp::get_logger("EliteCSDashboardInterface"), "Connect to robot success");
     } else {
         RCLCPP_INFO(rclcpp::get_logger("EliteCSDashboardInterface"), "Connect to robot fail");
@@ -54,6 +68,33 @@ DashboardClient::DashboardClient(const rclcpp::NodeOptions& options) : Node("das
     quit_service_ = createTriggerService("~/quit", [&]()->bool{ client_.quit(); return true; });
 
     safety_system_restart_service_ = createTriggerService("~/restart_safety", [&]()->bool{ return client_.safetySystemRestart(); });
+
+    set_remote_control_service_ = this->create_service<elite_robots_dashboard_msgs::srv::SetRemoteControl>(
+        "~/set_remote_control",
+        [&](const elite_robots_dashboard_msgs::srv::SetRemoteControl::Request::SharedPtr req,
+            elite_robots_dashboard_msgs::srv::SetRemoteControl::Response::SharedPtr resp) {
+            try {
+                resp->success = client_.remoteControl(req->enable);
+            } catch (const ELITE::EliteException& e) {
+                resp->success = false;
+                resp->message = e.what();
+            }
+        });
+
+    get_remote_control_mode_service_ = this->create_service<elite_robots_dashboard_msgs::srv::GetRemoteControlMode>(
+        "~/get_remote_control_mode",
+        [&](const elite_robots_dashboard_msgs::srv::GetRemoteControlMode::Request::SharedPtr req,
+            elite_robots_dashboard_msgs::srv::GetRemoteControlMode::Response::SharedPtr resp) {
+            (void)req;
+            try {
+                resp->mode = toRosRemoteControlMode(client_.remoteControlMode());
+                resp->success = true;
+            } catch (const ELITE::EliteException& e) {
+                resp->mode = elite_robots_dashboard_msgs::srv::GetRemoteControlMode::Response::UNKNOWN;
+                resp->success = false;
+                resp->message = e.what();
+            }
+        });
 
     popup_service_ = this->create_service<elite_robots_dashboard_msgs::srv::Popup>(
         "~/popup",
@@ -198,8 +239,10 @@ DashboardClient::DashboardClient(const rclcpp::NodeOptions& options) : Node("das
             (void)req;
             try {
                 std::string robot_ip = this->get_parameter("robot_ip").as_string();
-                resp->success = client_.connect(robot_ip);
+                is_connected_ = client_.connect(robot_ip);
+                resp->success = is_connected_;
             } catch (const ELITE::EliteException& e) {
+                is_connected_ = false;
                 resp->success = false;
                 resp->message = e.what();
             }
@@ -218,6 +261,10 @@ DashboardClient::DashboardClient(const rclcpp::NodeOptions& options) : Node("das
 }
 
 DashboardClient::~DashboardClient() {}
+
+bool DashboardClient::isConnected() const {
+    return is_connected_;
+}
 
 }  // namespace ELITE_CS_ROBOT_ROS_DRIVER
 

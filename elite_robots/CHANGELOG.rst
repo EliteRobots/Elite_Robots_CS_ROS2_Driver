@@ -2,6 +2,10 @@
 Changelog for package elite_robots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Synchronize the package version to 1.2.0 for the upcoming Jazzy feature parity update.
+
 1.0.3 (2026-08-31)
 ------------------
 * Synchronize the metapackage version for the SDK CMake target integration fix.

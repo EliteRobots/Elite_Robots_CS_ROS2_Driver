@@ -2,6 +2,19 @@
 Changelog for package elite_robots_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use the unscaled trajectory controller and leave IO inactive for single-arm fake hardware as well.
+* Add Primary-port robot control services and skip the dashboard component when its connection fails.
+* Add configurable controller-manager targets and optional controller spawning for multi-arm launch composition.
+* Accept absolute controller configuration paths and qualify update-rate parameters for namespaced controller managers.
+* Add bilingual multi-arm driver and MoveIt setup guides, link them from the usage guides, and install the documentation with the package.
+* Use the unscaled trajectory controller for dual-arm fake hardware and keep mock IO inactive.
+* Add dashboard services for setting and querying remote control mode.
+* Add runtime collision detection, collision sensitivity, and mounting plane configuration.
+* Improve trajectory feedback, cancellation handling, and servo command extrapolation.
+* Add CS63A and CS630 launch support and bilingual example documentation.
+
 1.0.3 (2026-08-31)
 ------------------
 * Link SDK consumers against the exported ``elite-cs-series-sdk::shared`` CMake target.
