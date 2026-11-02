@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <errno.h>
+#include <sys/resource.h>
 
 #include <algorithm>
 #include <chrono>
@@ -23,6 +24,7 @@
 #include <vector>
 
 #include "controller_manager/controller_manager.hpp"
+#include "hardware_interface/introspection.hpp"
 #include "rclcpp/executors.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "realtime_tools/realtime_helpers.hpp"
@@ -64,13 +66,47 @@ int main(int argc, char ** argv)
   auto cm = std::make_shared<controller_manager::ControllerManager>(
     executor, manager_node_name, /*namespace=*/"", cm_node_options);
 
+  // Stop the Jazzy statistics publishers before their ROS context becomes invalid.
+  // ControllerManager's own pre-shutdown callback shuts down controllers/hardware;
+  // registry destruction otherwise happens later, in its destructor.
+  auto context = cm->get_node_base_interface()->get_context();
+  const auto statistics_shutdown_callback = context->add_pre_shutdown_callback(
+    []()
+    {
+      for (const auto * key :
+           {hardware_interface::DEFAULT_REGISTRY_KEY, hardware_interface::CM_STATISTICS_KEY})
+      {
+        if (auto registry = pal_statistics::getRegistry(key))
+        {
+          registry->stopPublisherThread();
+        }
+      }
+    });
+
   const bool use_sim_time = cm->get_parameter_or("use_sim_time", false);
 
   // Keep master behavior: decide defaults based on realtime kernel presence
   const bool has_realtime = realtime_tools::has_realtime_kernel();
 
-  // lock_memory default: true if realtime kernel, otherwise false (unless user sets it)
-  const bool lock_memory = cm->get_parameter_or<bool>("lock_memory", has_realtime);
+  // MCL_FUTURE also locks memory allocated while loading hardware and controllers.
+  // With a finite memlock limit, locking can succeed here but later allocations or
+  // publisher threads can fail. Only enable it automatically with unlimited memlock.
+  bool lock_memory = false;
+  if (!cm->get_parameter("lock_memory", lock_memory) && has_realtime)
+  {
+    struct rlimit memlock_limit {};
+    lock_memory =
+      getrlimit(RLIMIT_MEMLOCK, &memlock_limit) == 0 && memlock_limit.rlim_cur == RLIM_INFINITY;
+    if (!lock_memory)
+    {
+      RCLCPP_WARN(
+        cm->get_logger(),
+        "Automatic memory locking disabled: the process does not have an unlimited memlock "
+        "allowance. A finite allowance can prevent hardware and controller threads from starting. "
+        "Configure unlimited memlock for automatic locking, or set lock_memory explicitly after "
+        "sizing the allowance for all controllers.");
+    }
+  }
   if (lock_memory)
   {
     const auto lock_result = realtime_tools::lock_memory();
@@ -225,5 +261,6 @@ int main(int argc, char ** argv)
 
   cm_thread.join();
   rclcpp::shutdown();
+  context->remove_pre_shutdown_callback(statistics_shutdown_callback);
   return 0;
 }
