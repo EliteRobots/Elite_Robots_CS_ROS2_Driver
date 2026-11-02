@@ -9,8 +9,11 @@ ROS_DOMAIN_ID=176 ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST \
   python3 -m pytest -v test/test_jazzy_integration.py
 ```
 
-These opt-in tests use `mock_components/GenericSystem`; they do not connect to a
-robot. They exercise CS63A, CS630, and five-axis CS520H controller activation,
+These opt-in tests do not connect to a robot. They check the custom control node's
+startup with finite `memlock` (automatic locking and explicit `lock_memory=false`)
+and clean SIGINT shutdown, including the statistics publisher threads.
+The remaining tests use `mock_components/GenericSystem` and exercise CS63A, CS630,
+and five-axis CS520H activation of all expected controllers and broadcasters,
 trajectory action execution, and MoveIt planning with time parameterization.
 The dual-arm check runs the launch example from `elite_robots_driver/doc/MultiArm.md`
 and verifies separate controller managers and prefixed joint interfaces.
