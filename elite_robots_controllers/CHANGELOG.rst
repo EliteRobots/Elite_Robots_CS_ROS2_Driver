@@ -2,10 +2,10 @@
 Changelog for package elite_robots_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-11-03)
+------------------
 * Add collision detection, collision sensitivity, and mounting plane services using Jazzy hardware interfaces; release all services on deactivation.
-* Synchronize the package version to 1.2.0 for the upcoming Jazzy feature parity update.
+* Synchronize the package version to 1.2.0 for the Jazzy feature parity release.
 
 1.0.3 (2026-08-31)
 ------------------

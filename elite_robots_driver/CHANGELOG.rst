@@ -2,8 +2,11 @@
 Changelog for package elite_robots_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-11-03)
+------------------
+* Enable automatic memory locking only on real-time kernels with an unlimited soft memlock allowance; preserve explicit ``lock_memory`` overrides to avoid startup failures under finite limits.
+* Stop controller-manager statistics publisher threads before ROS context shutdown and declare the direct ``pal_statistics`` dependency.
+* Document memory-locking and scheduling permissions and extend integration coverage for finite memory limits, controller states, and clean shutdown.
 * Use the unscaled trajectory controller and leave IO inactive for single-arm fake hardware as well.
 * Add Primary-port robot control services and skip the dashboard component when its connection fails.
 * Add configurable controller-manager targets and optional controller spawning for multi-arm launch composition.
