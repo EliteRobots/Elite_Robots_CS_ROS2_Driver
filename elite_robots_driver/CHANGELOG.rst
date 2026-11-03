@@ -2,8 +2,10 @@
 Changelog for package elite_robots_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2026-11-03)
+------------------
+* Enable automatic memory locking only on real-time kernels with an unlimited soft memlock allowance; preserve explicit ``lock_memory`` overrides to avoid startup failures under finite limits.
+* Document memory-locking and scheduling permissions and add runtime regression coverage for memory limits and overrides.
 * Add configurable controller-manager targets and optional controller spawning for multi-arm launch composition.
 * Accept absolute controller configuration paths and qualify update-rate parameters for namespaced controller managers.
 * Add bilingual multi-arm driver and MoveIt setup guides, link them from the usage guides, and install the documentation with the package.

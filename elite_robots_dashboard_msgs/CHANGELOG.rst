@@ -2,9 +2,9 @@
 Changelog for package elite_robots_dashboard_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
-* Synchronize the package version to 1.2.0 for the upcoming multi-arm launch and documentation update.
+1.2.0 (2026-11-03)
+------------------
+* Synchronize the package version to 1.2.0 for the multi-arm launch and documentation release.
 
 1.1.0 (2026-09-04)
 ------------------
